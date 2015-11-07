@@ -64,11 +64,18 @@ rt3d::materialStruct material0 = {
 	{0.0f, 0.1f, 0.0f, 1.0f}, // specular
 	2.0f  // shininess
 };
-rt3d::materialStruct material1 = {
-	{0.4f, 0.4f, 1.0f, 1.0f}, // ambient
-	{0.8f, 0.8f, 1.0f, 1.0f}, // diffuse
-	{0.8f, 0.8f, 0.8f, 1.0f}, // specular
+/*rt3d::materialStruct material1 = {
+	{ 0.4f, 0.4f, 1.0f, 1.0f }, // ambient
+	{ 0.8f, 0.8f, 1.0f, 1.0f }, // diffuse
+	{ 0.8f, 0.8f, 0.8f, 1.0f }, // specular
 	1.0f  // shininess
+};*/
+
+rt3d::materialStruct material1 = {
+	{ 1.f, 1.f, 1.0f, 1.0f }, // ambient
+	{ 1.f, 1.f, 1.0f, 1.0f }, // diffuse
+	{ 1.f, 1.f, 1.f, 1.0f }, // specular
+	0.1f  // shininess
 };
 
 // light attenuation
@@ -542,14 +549,22 @@ void draw(SDL_Window * window) {
 
 
 	// draw the toon shaded bunny
-	glUseProgram(toonShaderProgram);
-	rt3d::setLightPos(toonShaderProgram, glm::value_ptr(tmp));
-	rt3d::setUniformMatrix4fv(toonShaderProgram, "projection", glm::value_ptr(projection));
+	glUseProgram(environmentProgram);
+	rt3d::setLightPos(environmentProgram, glm::value_ptr(tmp));
+	rt3d::setUniformMatrix4fv(environmentProgram, "projection", glm::value_ptr(projection));
 	mvStack.push(mvStack.top());
+	modelMatrix = glm::mat4(1.f);
+	
 	mvStack.top() = glm::translate(mvStack.top(), glm::vec3(-4.0f, 0.1f, -2.0f));
+	modelMatrix = glm::rotate(modelMatrix, (float)(theta*DEG_TO_RADIAN), glm::vec3(0.0f, 1.0f, 0.0f));//transform theta to radians if expressed in degrees
+	mvStack.top() = mvStack.top() * modelMatrix;
 	mvStack.top() = glm::scale(mvStack.top(),glm::vec3(20.0, 20.0, 20.0));
-	rt3d::setUniformMatrix4fv(toonShaderProgram, "modelview", glm::value_ptr(mvStack.top()));
-	rt3d::setMaterial(toonShaderProgram, material0);
+
+	
+	rt3d::setUniformMatrix4fv(environmentProgram, "modelview", glm::value_ptr(mvStack.top()));
+	rt3d::setUniformMatrix4fv(environmentProgram, "modelMatrix", glm::value_ptr(modelMatrix));
+
+	rt3d::setMaterial(environmentProgram, material1);
 	rt3d::drawIndexedMesh(meshObjects[2], toonIndexCount, GL_TRIANGLES);
 	mvStack.pop();
 

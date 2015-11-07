@@ -48,23 +48,23 @@ void main(void) {
 	diffuseI = diffuseI * max(dot(normalize(ex_N),normalize(ex_L)),0);
 
 	// Specular intensity
-	// Calculate R - reflection of light
-	vec3 R = normalize(reflect(normalize(-ex_L),normalize(ex_N)));
+	// Calculate R - refraction of light
+	vec3 R = normalize(refract(normalize(-ex_L),normalize(ex_N), 1.5));
 
 	vec4 specularI = light.specular * material.specular;
 	specularI = specularI * pow(max(dot(R,ex_V),0), material.shininess);
 
 
-	vec3 reflectTexCoord = reflect(-ex_WorldView, normalize(ex_WorldNorm));
+	vec3 refractTexCoord = refract(-ex_WorldView, normalize(ex_WorldNorm), 1.5);
 
 	float attenuation=1.0f/(attConst + attLinear * ex_D + attQuadratic * ex_D*ex_D);
-	vec4 tmp_Color = (diffuseI + specularI)*texture(textureUnit0, ex_TexCoord)*texture(textureUnit1, reflectTexCoord);
+	vec4 tmp_Color = (diffuseI + specularI)/**texture(textureUnit0, ex_TexCoord)*/*texture(textureUnit1, refractTexCoord);
 
 	//Attenuation does not affect transparency
 	vec4 litColour = vec4(tmp_Color.rgb *attenuation, tmp_Color.a);
 	vec4 amb=min(ambientI,vec4(1.0f));
 		
-	out_Color=min(litColour+amb*texture(textureUnit0, ex_TexCoord)*texture(textureUnit1, reflectTexCoord),vec4(1.0f));//Here attenuation does not affectambient
+	out_Color=min(litColour+amb*/*texture(textureUnit0, ex_TexCoord)**/texture(textureUnit1, refractTexCoord),vec4(1.0f));//Here attenuation does not affectambient
 
 	
 	
